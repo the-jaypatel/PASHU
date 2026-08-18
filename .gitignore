@@ -1,24 +1,31 @@
-# Virtual environment
+# Python
 venv/
 .venv/
-
-# Python cache
 __pycache__/
-*.pyc
+*.py[cod]
+
+# Environment
+.env
+.env.*
 
 # Dataset
-data/
-dataset/
 archive/
 
-# Trained models
+# ML model files
 *.pth
 *.pt
 *.onnx
+*.ckpt
 
-# Jupyter
-.ipynb_checkpoints/
+# Frontend
+node_modules/
+dist/
+build/
 
 # IDE
 .vscode/
 .idea/
+
+# OS
+.DS_Store
+Thumbs.db
