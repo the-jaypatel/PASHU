@@ -1,0 +1,55 @@
+PASHU AI - TEST RESULTS
+============================================================
+
+Test Images: 890
+Test Accuracy: 55.62%
+Macro F1: 0.5234
+Weighted F1: 0.5539
+
+                   precision    recall  f1-score   support
+
+         Alambadi       0.76      0.87      0.81        15
+       Amritmahal       0.47      0.57      0.52        14
+         Ayrshire       0.75      0.60      0.67        35
+            Banni       0.50      0.25      0.33        16
+           Bargur       0.77      0.71      0.74        14
+        Bhadawari       0.19      0.23      0.21        13
+      Brown_Swiss       0.62      0.62      0.62        34
+            Dangi       0.73      0.67      0.70        12
+            Deoni       0.55      0.40      0.46        15
+              Gir       0.65      0.61      0.63        56
+         Guernsey       0.41      0.67      0.51        18
+         Hallikar       0.52      0.46      0.49        28
+          Hariana       0.36      0.20      0.26        20
+Holstein_Friesian       0.85      0.84      0.85        49
+       Jaffrabadi       0.60      0.60      0.60        15
+           Jersey       0.50      0.42      0.46        31
+         Kangayam       0.70      0.54      0.61        13
+          Kankrej       0.61      0.81      0.70        27
+         Kasargod       0.45      0.36      0.40        14
+         Kenkatha       0.31      0.50      0.38         8
+        Kherigarh       0.60      0.60      0.60         5
+         Khillari       0.58      0.65      0.61        17
+   Krishna_Valley       0.37      0.33      0.35        21
+     Malnad_gidda       0.53      0.56      0.55        16
+          Mehsana       0.36      0.29      0.32        14
+           Murrah       0.42      0.54      0.47        26
+           Nagori       0.67      0.62      0.64        13
+          Nagpuri       0.26      0.21      0.24        28
+        Nili_Ravi       0.38      0.38      0.38        13
+           Nimari       0.77      0.83      0.80        12
+           Ongole       0.61      0.79      0.69        29
+        Pulikulam       0.47      0.44      0.46        18
+            Rathi       0.55      0.52      0.53        23
+         Red_Dane       0.33      0.48      0.39        25
+       Red_Sindhi       0.55      0.44      0.49        25
+          Sahiwal       0.67      0.67      0.67        66
+            Surti       0.08      0.11      0.09         9
+       Tharparkar       0.80      0.73      0.76        33
+             Toda       0.36      0.28      0.31        18
+       Umblachery       0.64      0.64      0.64        11
+           Vechur       0.48      0.62      0.54        21
+
+         accuracy                           0.56       890
+        macro avg       0.53      0.53      0.52       890
+     weighted avg       0.56      0.56      0.55       890
