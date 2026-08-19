@@ -29,6 +29,14 @@ class BovineClassifier:
             )
 
         # ==================================================
+        # CPU OPTIMIZATION
+        # ==================================================
+
+        if self.device.type == "cpu":
+            torch.set_num_threads(1)
+            print("[PASHU] CPU threads limited to 1")
+
+        # ==================================================
         # LOAD EFFICIENTNET MODEL
         # ==================================================
 
@@ -83,19 +91,33 @@ class BovineClassifier:
         image = image.convert("RGB")
 
         image_tensor = self.transform(image)
+
         image_tensor = image_tensor.unsqueeze(0)
+
         image_tensor = image_tensor.to(self.device)
 
-        with torch.no_grad():
+        # ==================================================
+        # MODEL INFERENCE
+        # ==================================================
+
+        with torch.inference_mode():
 
             outputs = self.model(
                 image_tensor
             )
 
+        # ==================================================
+        # PROBABILITIES
+        # ==================================================
+
         probabilities = torch.softmax(
             outputs,
             dim=1
         )
+
+        # ==================================================
+        # TOP 3 PREDICTIONS
+        # ==================================================
 
         top_probabilities, top_indices = torch.topk(
             probabilities,
@@ -113,8 +135,11 @@ class BovineClassifier:
             index = int(index.item())
 
             if index in self.idx_to_breed:
+
                 breed = self.idx_to_breed[index]
+
             else:
+
                 breed = self.idx_to_breed[str(index)]
 
             results.append({
@@ -134,9 +159,20 @@ class BovineClassifier:
 
         image = image.convert("RGB")
 
-        predictions = self.predict_breed(image)
+        # ==================================================
+        # BREED CLASSIFICATION
+        # ==================================================
+
+        predictions = self.predict_breed(
+            image
+        )
+
+        # ==================================================
+        # NO PREDICTION
+        # ==================================================
 
         if not predictions:
+
             return {
                 "is_bovine": False,
                 "detected_type": None,
@@ -145,7 +181,7 @@ class BovineClassifier:
             }
 
         # ==================================================
-        # DETERMINE COW / BUFFALO FROM BREED
+        # COW / BUFFALO BREEDS
         # ==================================================
 
         buffalo_breeds = {
@@ -158,12 +194,23 @@ class BovineClassifier:
             "Surti"
         }
 
+        # ==================================================
+        # BEST BREED
+        # ==================================================
+
         best_breed = predictions[0]["breed"]
 
         if best_breed in buffalo_breeds:
+
             detected_type = "buffalo"
+
         else:
+
             detected_type = "cow"
+
+        # ==================================================
+        # RETURN RESULT
+        # ==================================================
 
         return {
             "is_bovine": True,
