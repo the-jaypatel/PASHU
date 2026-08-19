@@ -7,7 +7,7 @@ import type {
 
 import { BREED_INFO } from '../data/breeds'
 
-const API_BASE_URL = 'http://127.0.0.1:8000'
+const API_BASE_URL = 'https://pashu-api.onrender.com'
 
 interface BackendPrediction {
   breed: string
