@@ -1,31 +1,36 @@
+# ==============================
 # Python
+# ==============================
+
 venv/
-.venv/
 __pycache__/
-*.py[cod]
+*.pyc
+*.pyo
 
-# Environment
-.env
-.env.*
+# ==============================
+# Node / React
+# ==============================
 
-# Dataset
-archive/
+frontend/node_modules/
+frontend/dist/
 
-# ML model files
-*.pth
-*.pt
-*.onnx
-*.ckpt
+# ==============================
+# VS Code
+# ==============================
 
-# Frontend
-node_modules/
-dist/
-build/
-
-# IDE
 .vscode/
-.idea/
 
-# OS
-.DS_Store
-Thumbs.db
+# ==============================
+# Environment / Secrets
+# ==============================
+
+.env
+.env.local
+.env.*.local
+
+# ==============================
+# Project Archives / Backups
+# ==============================
+
+archive/
+*_backup.py

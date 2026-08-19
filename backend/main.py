@@ -8,83 +8,92 @@ from PIL import Image, UnidentifiedImageError
 from backend.inference import BovineClassifier
 
 
-# --------------------------------------------------
+# ==========================================================
 # PROJECT PATH
-# --------------------------------------------------
+# ==========================================================
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 MODEL_PATH = PROJECT_ROOT / "models" / "best_model.pth"
 
 
-# --------------------------------------------------
+# ==========================================================
 # FASTAPI
-# --------------------------------------------------
+# ==========================================================
 
 app = FastAPI(
     title="PASHU API",
     description="Indian Bovine Breed Identification API",
-    version="1.0.0"
+    version="1.1.0"
 )
 
 
-# --------------------------------------------------
+# ==========================================================
 # CORS
-# --------------------------------------------------
+# ==========================================================
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173"
-    ],
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:5174",
+    "http://127.0.0.1:5174",
+],
     allow_credentials=True,
     allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
 
 
-# --------------------------------------------------
-# LOAD MODEL ONCE
-# --------------------------------------------------
+# ==========================================================
+# LOAD MODEL
+# ==========================================================
 
 print("[PASHU] Loading model...")
 
-classifier = BovineClassifier(MODEL_PATH)
+classifier = BovineClassifier(
+    MODEL_PATH
+)
 
 print("[PASHU] Backend ready!")
 
 
-# --------------------------------------------------
+# ==========================================================
 # HEALTH CHECK
-# --------------------------------------------------
+# ==========================================================
 
 @app.get("/api/health")
 def health():
 
     return {
-        "status": "ok"
+        "status": "ok",
+        "service": "PASHU AI",
+        "model": "EfficientNet-B0"
     }
 
 
-# --------------------------------------------------
+# ==========================================================
 # PREDICT
-# --------------------------------------------------
+# ==========================================================
 
 @app.post("/api/predict")
-async def predict(image: UploadFile = File(...)):
+async def predict(
+    image: UploadFile = File(...)
+):
 
     try:
 
-        # Read uploaded file
+        # --------------------------------------------------
+        # READ IMAGE
+        # --------------------------------------------------
+
         contents = await image.read()
 
-        # Open image
         pil_image = Image.open(
             BytesIO(contents)
         )
 
-        # Convert to RGB
         pil_image = pil_image.convert("RGB")
 
     except (
@@ -100,16 +109,46 @@ async def predict(image: UploadFile = File(...)):
 
     try:
 
-        # Run model
-        predictions = classifier.predict(
+        # --------------------------------------------------
+        # RUN PREDICTION
+        # --------------------------------------------------
+
+        result = classifier.predict(
             pil_image
         )
 
-        # Best prediction
+        # --------------------------------------------------
+        # NON-BOVINE
+        # --------------------------------------------------
+
+        if not result["is_bovine"]:
+
+            return {
+                "success": True,
+                "is_bovine": False,
+                "message": (
+                    "No cow or buffalo detected. "
+                    "Please upload a clear image "
+                    "containing a cow or buffalo."
+                ),
+                "prediction": None
+            }
+
+        # --------------------------------------------------
+        # BOVINE
+        # --------------------------------------------------
+
+        predictions = result["predictions"]
+
         best_prediction = predictions[0]
 
         return {
             "success": True,
+            "is_bovine": True,
+            "detected_type": result["detected_type"],
+            "detector_confidence": result[
+                "detector_confidence"
+            ],
             "prediction": {
                 "breed": best_prediction["breed"],
                 "confidence": best_prediction["confidence"],
@@ -119,7 +158,10 @@ async def predict(image: UploadFile = File(...)):
 
     except Exception as error:
 
-        print("[PASHU] Prediction error:", error)
+        print(
+            "[PASHU] Prediction error:",
+            error
+        )
 
         return {
             "success": False,
