@@ -79,13 +79,11 @@ class BovineClassifier:
 
         PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-self.detector = YOLO(
-    PROJECT_ROOT / "yolo11n.pt"
-)
+        self.detector = YOLO(
+            PROJECT_ROOT / "yolo11n.pt"
+        )
 
         print("[PASHU] Models loaded successfully.")
-        print(f"[PASHU] Breed classes: {len(self.classes)}")
-
     # ======================================================
     # BOVINE DETECTION
     # ======================================================
