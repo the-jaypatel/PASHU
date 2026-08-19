@@ -4,7 +4,6 @@ import torch
 import timm
 from PIL import Image
 from torchvision import transforms
-from ultralytics import YOLO
 
 
 class BovineClassifier:
@@ -71,80 +70,9 @@ class BovineClassifier:
             )
         ])
 
-        # ==================================================
-        # LOAD YOLO
-        # ==================================================
-
-        print("[PASHU] Loading bovine detector...")
-
-        PROJECT_ROOT = Path(__file__).resolve().parent.parent
-
-        self.detector = YOLO(
-            PROJECT_ROOT / "yolo11n.pt"
-        )
-
-        print("[PASHU] Models loaded successfully.")
-    # ======================================================
-    # BOVINE DETECTION
-    # ======================================================
-
-    def detect_bovine(self, image: Image.Image):
-
-        results = self.detector.predict(
-            source=image,
-            verbose=False,
-            conf=0.25
-        )
-
-        detections = []
-
-        for result in results:
-
-            if result.boxes is None:
-                continue
-
-            for box in result.boxes:
-
-                class_id = int(box.cls.item())
-                confidence = float(box.conf.item())
-
-                class_name = result.names[class_id]
-
-                detections.append({
-                    "class": class_name,
-                    "confidence": confidence
-                })
-
-        # Find cow detection
-        cow_detections = [
-            detection
-            for detection in detections
-            if detection["class"].lower() == "cow"
-        ]
-
-        if cow_detections:
-
-            best_cow = max(
-                cow_detections,
-                key=lambda x: x["confidence"]
-            )
-
-            return {
-                "is_bovine": True,
-                "detected_type": "cow",
-                "detector_confidence": best_cow[
-                    "confidence"
-                ],
-                "detections": detections
-            }
-
-        # No cow detected
-        return {
-            "is_bovine": False,
-            "detected_type": None,
-            "detector_confidence": 0.0,
-            "detections": detections
-        }
+        print("[PASHU] Breed model loaded successfully.")
+        print(f"[PASHU] Breed classes: {len(self.classes)}")
+        print("[PASHU] Backend ready!")
 
     # ======================================================
     # BREED PREDICTION
@@ -155,9 +83,7 @@ class BovineClassifier:
         image = image.convert("RGB")
 
         image_tensor = self.transform(image)
-
         image_tensor = image_tensor.unsqueeze(0)
-
         image_tensor = image_tensor.to(self.device)
 
         with torch.no_grad():
@@ -187,11 +113,8 @@ class BovineClassifier:
             index = int(index.item())
 
             if index in self.idx_to_breed:
-
                 breed = self.idx_to_breed[index]
-
             else:
-
                 breed = self.idx_to_breed[str(index)]
 
             results.append({
@@ -211,20 +134,9 @@ class BovineClassifier:
 
         image = image.convert("RGB")
 
-        # --------------------------------------------------
-        # STEP 1: CHECK FOR BOVINE
-        # --------------------------------------------------
+        predictions = self.predict_breed(image)
 
-        bovine_check = self.detect_bovine(
-            image
-        )
-
-        # --------------------------------------------------
-        # NON-BOVINE IMAGE
-        # --------------------------------------------------
-
-        if not bovine_check["is_bovine"]:
-
+        if not predictions:
             return {
                 "is_bovine": False,
                 "detected_type": None,
@@ -232,17 +144,9 @@ class BovineClassifier:
                 "predictions": []
             }
 
-        # --------------------------------------------------
-        # STEP 2: BREED CLASSIFICATION
-        # --------------------------------------------------
-
-        predictions = self.predict_breed(
-            image
-        )
-
-        # --------------------------------------------------
-        # STEP 3: DETERMINE COW / BUFFALO
-        # --------------------------------------------------
+        # ==================================================
+        # DETERMINE COW / BUFFALO FROM BREED
+        # ==================================================
 
         buffalo_breeds = {
             "Banni",
@@ -257,22 +161,13 @@ class BovineClassifier:
         best_breed = predictions[0]["breed"]
 
         if best_breed in buffalo_breeds:
-
             detected_type = "buffalo"
-
         else:
-
             detected_type = "cow"
-
-        # --------------------------------------------------
-        # RETURN
-        # --------------------------------------------------
 
         return {
             "is_bovine": True,
             "detected_type": detected_type,
-            "detector_confidence": bovine_check[
-                "detector_confidence"
-            ],
+            "detector_confidence": 1.0,
             "predictions": predictions
         }
